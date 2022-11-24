@@ -27,9 +27,9 @@ size_t get_current_color()
     return current_color;
 }
 
-void change_color(const size_t new_color)
+void change_color(const size_t new_color, WINDOW *window)
 {
-    wattroff(get_field(), COLOR_PAIR(current_color));
+    wattroff(window, COLOR_PAIR(current_color));
     current_color = new_color; 
-    wattron(get_field(), COLOR_PAIR(current_color));
+    wattron(window, COLOR_PAIR(current_color));
 }

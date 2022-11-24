@@ -1,10 +1,12 @@
 #include "shad.h"
 #include <curses.h>
 
-/* Error messages */
+/* Messages */
 extern const char err_init_screen[];
 extern const char err_init_colors[]; 
 extern const char err_init_mouse[]; 
+
+const char msg_current_color[] = "Current color:";
 
 /* Constants and macros */
 #define BAR_HEIGHT 6
@@ -40,6 +42,11 @@ void end_screen()
     endwin();
 }
 
+void set_current_color()
+{
+
+}
+
 /* Initizalition */
 static void init_field()
 {
@@ -50,9 +57,24 @@ static void init_field()
 
 static void init_bar()
 {
+    int i = COLOR_RED;
+    int y = 1, x = getmaxx(get_field()) - 10;
+    int msg_x = x - sizeof(msg_current_color) - 1;
     /* Height, width, starty, startx */
     tool_bar = newwin(BAR_HEIGHT, COLS, LINES - 6, 0); 
     box(get_bar(), 0, 0);
+
+    /* Now time to draw our color pallete */
+    for (; i < COLOR_WHITE + 1; i++) {
+        if (y == getmaxy(get_bar()) - 1) {
+            x++;
+            y = 1;
+        }
+        change_color(i, get_bar());
+        mvwaddch(get_bar(), y, x, ' ');
+        y++;
+    }
+    mvwaddstr(get_bar(), 1, msg_x, msg_current_color);
 }
 
 static void init_mouse()
@@ -65,7 +87,7 @@ static void init_mouse()
 
 void init_shad()
 {
-    if (initscr() == false) 
+    if (!initscr()) 
         die(err_init_screen);
     if (!has_colors()) {
         die(err_init_colors);

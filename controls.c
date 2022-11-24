@@ -1,5 +1,4 @@
 #include "shad.h"
-#include <curses.h>
 /* Enums, structs and etc */
 typedef enum {
     OTHER,
@@ -25,10 +24,10 @@ static void erase_char(const int y, const int x)
     int current_color = get_current_color();
 
     /* Changing color to black */
-    change_color(0);
+    change_color(0, get_field());
     mvwaddch(get_field(), y, x, ' ');
     /* Back to the original color */
-    change_color(current_color);
+    change_color(current_color, get_field());
 }
 
 static void procces_mouse()
@@ -62,7 +61,7 @@ void procces_input()
         procces_mouse();
         break;
     case '0'...'9':
-        change_color(key - 48);
+        change_color(key - 48, get_field());
         break;
     case KEY_ESC:
         end_screen();

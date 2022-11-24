@@ -20,5 +20,5 @@ void procces_input();
 
 /* Color */
 void init_shad_colors();
-void change_color(const size_t new_color);
+void change_color(const size_t new_color, WINDOW *window);
 size_t get_current_color();
