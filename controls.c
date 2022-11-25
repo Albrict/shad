@@ -62,6 +62,10 @@ void procces_input()
         break;
     case '0'...'9':
         change_color(key - 48, get_field());
+        set_current_color();
+        break;
+    case 's':
+        save();
         break;
     case KEY_ESC:
         end_screen();
