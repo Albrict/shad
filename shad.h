@@ -1,11 +1,28 @@
 #include <ncurses.h>
 #include <stdlib.h>
+
 enum keys {
     KEY_ESC = 27
 };
 
+typedef enum {
+    BLACK = 0,
+    RED,
+    GREEN,
+    YELLOW,
+    BLUE,
+    MAGENTA,
+    CYAN,
+    WHITE,
+} colors;
+
+typedef enum {
+    FONT_BLACK
+} special_colors;
+
 /* System */
 void die(const char *error);
+void save();
 
 /* Graphics */
 WINDOW *get_field();
@@ -13,12 +30,14 @@ WINDOW *get_bar();
 
 void update();
 void init_shad();
+void load_field_and_init(FILE *field);
 void end_screen();
 
+void set_current_color();
 /* Controls */
 void procces_input();
 
 /* Color */
 void init_shad_colors();
-void change_color(const size_t new_color, WINDOW *window);
-size_t get_current_color();
+void change_color(const colors new_color, WINDOW *window);
+colors get_current_color();
