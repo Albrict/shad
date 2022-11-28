@@ -1,10 +1,15 @@
 #include "shad.h"
+
 /* Enums, structs and etc */
 typedef enum {
     OTHER,
     DRAW,
     ERASE,
 } mouse_events;
+
+enum keys {
+    KEY_ESC = 27
+};
 
 /* Mouse functions */
 static mouse_events procces_mouse_event(MEVENT *event)
@@ -64,10 +69,8 @@ void procces_input()
         change_color(key - 48, get_field());
         set_current_color();
         break;
-    case 's':
-        save();
-        break;
     case KEY_ESC:
+        save();
         end_screen();
         exit(EXIT_SUCCESS);
         break;
