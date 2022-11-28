@@ -1,10 +1,6 @@
 #include <ncurses.h>
 #include <stdlib.h>
 
-enum keys {
-    KEY_ESC = 27
-};
-
 typedef enum {
     BLACK = 0,
     RED,
