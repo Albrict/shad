@@ -3,8 +3,8 @@
 #include <string.h>
 #include <unistd.h>
 
-/* filename */
-char *name = NULL;
+/* Strings */
+static char *name = NULL;
 
 /* File functions */
 static void load()
@@ -30,7 +30,7 @@ void save()
     fclose(f);
 }
 
-void run()
+static void run()
 {
     while (true) {
         procces_input();
@@ -54,8 +54,8 @@ int main (int argc, char *argv[])
         }
     /* Else we create new file with time title */
     } else {
-        time_t time;
-        char *current_time = ctime(&time);
+        time_t cur_time = time(NULL);
+        char *current_time = ctime(&cur_time);
         name = current_time;
         current_time[strlen(current_time) - 1] = '\0';
         create();
