@@ -1,5 +1,7 @@
 #include <ncurses.h>
 #include <stdlib.h>
+#ifndef SHAD_H
+#define SHAD_H
 
 typedef enum {
     BLACK = 0,
@@ -37,3 +39,5 @@ void procces_input();
 void init_shad_colors();
 void change_color(const colors new_color, WINDOW *window);
 colors get_current_color();
+
+#endif /* SHAD_H */
