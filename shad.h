@@ -1,7 +1,8 @@
-#include <ncurses.h>
-#include <stdlib.h>
 #ifndef SHAD_H
 #define SHAD_H
+
+#include <ncurses.h>
+#include <stdlib.h>
 
 typedef enum {
     BLACK = 0,
