@@ -18,12 +18,13 @@ void init(void)
     setlocale(LC_ALL, "");
     nc = notcurses_init(NULL, stdout);
     if (nc == NULL) 
-        die_and_log(error_init_message);
+        die(error_init_message);
+    init_error_system(nc);    
 
     int res = notcurses_mice_enable(nc, 1);
     if (res < 0)
         die_and_log(error_mouse_message);
-    
+
     init_palette(nc);
     init_canvas_plane(nc);
     init_instrument_panel_plane(nc);

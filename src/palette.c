@@ -1,6 +1,7 @@
+#include <cJSON.h>
+
 #include "palette.h"
 #include "shad_error.h"
-#include <cJSON.h>
 
 static struct ncpalette *current_pallete = NULL;
 

@@ -6,5 +6,3 @@ void proccess_input_on_instrument_panel_plane(const struct ncinput *input);
 
 struct ncplane *get_instument_panel_plane(void);
 const struct ncplane *get_const_instument_panel_plane(void);
-
-const uint32_t get_current_color(void);

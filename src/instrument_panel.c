@@ -1,17 +1,12 @@
 #include "instrument_panel.h"
 #include "shad_error.h"
-#include "palette.h"
 #include "util.h"
 #include "button.h"
-
-#include <notcurses/notcurses.h>
+#include "color_picker_panel.h"
+#include "choosen_color_panel.h"
 
 static struct ncplane *instrument_panel = NULL;
-static struct ncplane *color_picker = NULL;
-static uint32_t current_color = 0;
-
-static void init_color_picker(const int y, const int x, const int rows, const int cols);
-static void proccess_input_on_color_picker(const struct ncinput *input);
+static struct button *more_colors_button = NULL;
 
 void init_instrument_panel_plane(struct notcurses *nc)
 {
@@ -22,7 +17,7 @@ void init_instrument_panel_plane(struct notcurses *nc)
     int color_picker_cols = 0;
 
     const char *error_create_plane_message = "Can't create instrument panel plane\n";
-
+    const wchar_t *button_text = L"Palette";
     struct ncplane_options opts;
     memset(&opts, 0, sizeof(struct ncplane_options));
     notcurses_term_dim_yx(nc, &terminal_rows, &terminal_cols);
@@ -42,26 +37,23 @@ void init_instrument_panel_plane(struct notcurses *nc)
     color_picker_cols = opts.cols - 2; 
     color_picker_rows = opts.rows / 4;
 
-    init_color_picker(color_picker_y, color_picker_x, color_picker_rows, color_picker_cols);
-    ncpalette_get(get_palette(), 1, &current_color);
+    init_color_picker(instrument_panel, color_picker_y, color_picker_x, color_picker_rows, color_picker_cols);
+    init_choosen_color_panel(instrument_panel, color_picker_rows, 1, 3, color_picker_cols / 2, NCBOXMASK_TOP);
 
-    struct button *button = create_button(instrument_panel, color_picker_rows, 1, 2, color_picker_cols / 2); 
-    draw_box(button, NCBOXMASK_TOP);
-}
-
-const uint32_t get_current_color(void)
-{
-    return current_color;
+    more_colors_button = create_button(instrument_panel, color_picker_rows, color_picker_cols / 2 + 1, 3, color_picker_cols / 2);
+    draw_button_box(more_colors_button, NCBOXMASK_TOP);
+    draw_text_on_button(more_colors_button, button_text);
 }
 
 void proccess_input_on_instrument_panel_plane(const struct ncinput *input)
 {
     int y = input->y;
     int x = input->x;
-
-    if (ncplane_translate_abs(color_picker, &y, &x) == true)
-        if (input->id == NCKEY_BUTTON1)
-            proccess_input_on_color_picker(input);
+    
+    proccess_input_on_button(more_colors_button, input);
+    if (input->id == NCKEY_BUTTON1)
+        if (is_mouse_on_color_picker(y, x) == true)
+            set_color(get_selected_color(input));
 }
 
 struct ncplane *get_instument_panel_plane(void)
@@ -73,49 +65,4 @@ const struct ncplane *get_const_instument_panel_plane(void)
 {
     const struct ncplane *const_instrument_panel = instrument_panel;
     return const_instrument_panel;
-}
-
-static void fill_color_picker(const int rows, const int cols)
-{
-    uint32_t color;
-    int color_id = 1;
-    for (int y = 1; y < rows; ++y) {
-        for (int x = 1; x < cols; ++x) {
-            if (color_id == 255)
-                break;
-            ncpalette_get(get_palette(), color_id,  &color);
-            ncplane_set_fg_rgb(color_picker, color);
-            ncplane_putwc_yx(color_picker, y, x, L'▊');
-            ++color_id;
-        }
-    }
-}
-
-static void init_color_picker(const int y, const int x, const int rows, const int cols)
-{
-    const char *error_create_plane_message = "Can't create color picker panel plane\n";
-    struct ncplane_options opts;
-    memset(&opts, 0, sizeof(struct ncplane_options));
-    opts.y = y;
-    opts.x = x;
-    opts.rows = rows;
-    opts.cols = cols;
-
-    color_picker = ncplane_create(instrument_panel, &opts);
-    if (color_picker == NULL)
-        die_and_log(error_create_plane_message);
-
-    create_box(color_picker, rows - 1, cols - 1, 0x100);
-    fill_color_picker(rows - 1, cols - 1);
-}
-
-static void proccess_input_on_color_picker(const struct ncinput *input)
-{
-    int y = input->y;
-    int x = input->x;
-    uint64_t channels = 0;
-    
-    ncplane_translate_abs(color_picker, &y, &x);
-    ncplane_at_yx(color_picker, y, x, NULL, &channels);
-    current_color = ncchannels_fg_rgb(channels); 
 }
