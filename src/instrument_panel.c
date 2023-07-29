@@ -8,6 +8,12 @@
 static struct ncplane *instrument_panel = NULL;
 static struct button *more_colors_button = NULL;
 
+//void callback_func(void *data)
+//{
+//    struct ncplane *parent = (struct ncplane*)data;
+//    create_palette_window(parent);
+//}
+
 void init_instrument_panel_plane(struct notcurses *nc)
 {
     unsigned int terminal_rows = 0;

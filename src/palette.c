@@ -4,6 +4,7 @@
 #include "shad_error.h"
 
 static struct ncpalette *current_pallete = NULL;
+static int color_amount = 0;
 
 static void parse_json_and_set_colors(void);
 
@@ -26,6 +27,11 @@ void delete_palette(void)
 struct ncpalette *get_palette(void)
 {
     return current_pallete;
+}
+
+int get_amount_of_colors(void)
+{
+    return color_amount;
 }
 
 /* Open json file with palette settings and read it */
@@ -76,6 +82,7 @@ static void parse_json_and_set_colors(void)
         memmove(str, str + 1, strlen(str));
         uint32_t color = strtol(str, NULL, 16);
         ncpalette_set(current_pallete, color_id, color);
+        ++color_amount;
     }
 
     free(buffer);

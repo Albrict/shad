@@ -49,7 +49,7 @@ static void fill_color_picker(const int rows, const int cols)
     int color_id = 1;
     for (int y = 1; y < rows; ++y) {
         for (int x = 1; x < cols; ++x) {
-            if (color_id == 255)
+            if (color_id == get_amount_of_colors())
                 break;
             ncpalette_get(get_palette(), color_id,  &color);
             ncplane_set_fg_rgb(color_picker, color);

@@ -1,0 +1,74 @@
+[
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_main.c.o -MF shad.p/src_main.c.o.d -o shad.p/src_main.c.o -c ../src/main.c",
+    "file": "../src/main.c",
+    "output": "shad.p/src_main.c.o"
+  },
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_shad.c.o -MF shad.p/src_shad.c.o.d -o shad.p/src_shad.c.o -c ../src/shad.c",
+    "file": "../src/shad.c",
+    "output": "shad.p/src_shad.c.o"
+  },
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_shad_error.c.o -MF shad.p/src_shad_error.c.o.d -o shad.p/src_shad_error.c.o -c ../src/shad_error.c",
+    "file": "../src/shad_error.c",
+    "output": "shad.p/src_shad_error.c.o"
+  },
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_input.c.o -MF shad.p/src_input.c.o.d -o shad.p/src_input.c.o -c ../src/input.c",
+    "file": "../src/input.c",
+    "output": "shad.p/src_input.c.o"
+  },
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_canvas.c.o -MF shad.p/src_canvas.c.o.d -o shad.p/src_canvas.c.o -c ../src/canvas.c",
+    "file": "../src/canvas.c",
+    "output": "shad.p/src_canvas.c.o"
+  },
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_instrument_panel.c.o -MF shad.p/src_instrument_panel.c.o.d -o shad.p/src_instrument_panel.c.o -c ../src/instrument_panel.c",
+    "file": "../src/instrument_panel.c",
+    "output": "shad.p/src_instrument_panel.c.o"
+  },
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_palette.c.o -MF shad.p/src_palette.c.o.d -o shad.p/src_palette.c.o -c ../src/palette.c",
+    "file": "../src/palette.c",
+    "output": "shad.p/src_palette.c.o"
+  },
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_util.c.o -MF shad.p/src_util.c.o.d -o shad.p/src_util.c.o -c ../src/util.c",
+    "file": "../src/util.c",
+    "output": "shad.p/src_util.c.o"
+  },
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_button.c.o -MF shad.p/src_button.c.o.d -o shad.p/src_button.c.o -c ../src/button.c",
+    "file": "../src/button.c",
+    "output": "shad.p/src_button.c.o"
+  },
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_label.c.o -MF shad.p/src_label.c.o.d -o shad.p/src_label.c.o -c ../src/label.c",
+    "file": "../src/label.c",
+    "output": "shad.p/src_label.c.o"
+  },
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_color_picker_panel.c.o -MF shad.p/src_color_picker_panel.c.o.d -o shad.p/src_color_picker_panel.c.o -c ../src/color_picker_panel.c",
+    "file": "../src/color_picker_panel.c",
+    "output": "shad.p/src_color_picker_panel.c.o"
+  },
+  {
+    "directory": "/home/albrict/prog/shad/debug",
+    "command": "cc -Ishad.p -I. -I.. -I/usr/local/include -I/usr/local/include/cjson -fdiagnostics-color=always -D_FILE_OFFSET_BITS=64 -Wall -Winvalid-pch -O0 -g -fsanitize=address -fsanitize=leak -fsanitize=undefined -fsanitize=null -D_DEFAULT_SOURCE -D_XOPEN_SOURCE=600 -MD -MQ shad.p/src_choosen_color_panel.c.o -MF shad.p/src_choosen_color_panel.c.o.d -o shad.p/src_choosen_color_panel.c.o -c ../src/choosen_color_panel.c",
+    "file": "../src/choosen_color_panel.c",
+    "output": "shad.p/src_choosen_color_panel.c.o"
+  }
+]

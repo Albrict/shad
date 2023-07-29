@@ -52,6 +52,7 @@ const struct ncplane *get_const_canvas_plane(void)
 
 static void draw_character_on_canvas(const struct ncinput *input)
 {
+     
     ncplane_set_fg_rgb(canvas, get_choosen_color());
     ncplane_putwc_yx(canvas, input->ypx + input->y, input->xpx + input->x, L'█');
 }
