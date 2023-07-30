@@ -1,6 +1,5 @@
 #include "input.h"
-#include "canvas.h"
-#include "instrument_panel.h"
+#include "panel_list.h"
 
 static void proccess_mouse(const ncinput *input);
 
@@ -12,11 +11,9 @@ void proccess_input(const ncinput *input)
 
 static void proccess_mouse(const ncinput *input)
 {
-    int y = input->y;
-    int x = input->x;
-    if (ncplane_translate_abs(get_canvas_plane(), &y, &x) == true)
-        proccess_input_on_canvas(input);
-
-    if (ncplane_translate_abs(get_instument_panel_plane(), &y, &x) == true)
-        proccess_input_on_instrument_panel_plane(input);
+    struct panel_node *first = get_first_node();
+    while (first) {
+        first->input_callback(input, first->panel);
+        first = first->next;
+    }
 }

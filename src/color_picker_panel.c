@@ -10,12 +10,15 @@ static void fill_color_picker(const int rows, const int cols);
 void init_color_picker(struct ncplane *parent, const int y, const int x, const int rows, const int cols)
 {
     const char *error_create_plane_message = "Can't create color picker panel plane\n";
+    const char *panel_name = "color-picker";
+
     struct ncplane_options opts;
     memset(&opts, 0, sizeof(struct ncplane_options));
     opts.y = y;
     opts.x = x;
     opts.rows = rows;
     opts.cols = cols;
+    opts.name = panel_name;
 
     color_picker = ncplane_create(parent, &opts);
     if (color_picker == NULL)

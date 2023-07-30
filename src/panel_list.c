@@ -10,21 +10,25 @@ void add_panel_to_list(struct ncplane *panel, panel_input_callback callback)
     struct panel_node *tmp = malloc(sizeof(struct panel_node));
     if (tmp == NULL)
         die_and_log(error_msg);
-    if (last) {
-        tmp->next = NULL;
-        tmp->prev = last;
-        last->next = tmp;
+    tmp->panel = panel;
+    tmp->input_callback = callback;
+    tmp->prev = NULL;
+    tmp->next = first;
+    if (first)
+        first->prev = NULL;
+    else
+        last = tmp;
+    first = tmp;
+}
 
-        tmp->panel = panel;
-        tmp->input_callback = callback;
-    } else {
-        tmp->next = NULL;
-        tmp->prev = first;
-
-        tmp->panel = panel;
-        tmp->input_callback = callback;
-
-        first = last = tmp;
+void free_panel_list(void)
+{
+    struct panel_node *tmp = NULL;
+    while (first) {
+        tmp = first;
+        first = first->next;
+        /* No need to destroy plane - on exit notcurses will clean up itself */
+        free(tmp);
     }
 }
 

@@ -1,17 +1,17 @@
 #include "canvas.h"
 #include "choosen_color_panel.h"
-#include "shad_error.h"
 
 static struct ncplane *canvas = NULL;
 
 static void draw_character_on_canvas(const struct ncinput *input);
 static void erase_character_on_canvas(const struct ncinput *input);
+static bool locked = false;
 
-void init_canvas_plane(struct notcurses *nc)
+struct ncplane *init_canvas_plane(struct notcurses *nc)
 {
+    const char *panel_name = "canvas";
     unsigned int terminal_rows = 0;
     unsigned int terminal_cols = 0;
-    const char *error_create_plane_message = "Can't create canvas plane\n";
 
     struct ncplane_options opts;
     memset(&opts, 0, sizeof(struct ncplane_options));
@@ -21,33 +21,42 @@ void init_canvas_plane(struct notcurses *nc)
     opts.x = 1;
     opts.rows = terminal_rows - 2;
     opts.cols = terminal_cols / 2 + terminal_cols / 4;
-    
+    opts.name = panel_name;  
     canvas = ncplane_create(notcurses_stdplane(nc), &opts);
     if (canvas == NULL)
-        die_and_log(error_create_plane_message);
+        return NULL;
+    else 
+        return canvas;
 }
 
-void proccess_input_on_canvas(const struct ncinput *input)
+void proccess_input_on_canvas(const struct ncinput *input, struct ncplane *canvas)
 {
-    switch(input->id) {
-    case NCKEY_BUTTON1:
-        draw_character_on_canvas(input);
-        break;
-    case NCKEY_BUTTON3:
-        erase_character_on_canvas(input);
-        break;
+    /* Canvas is locked - we can't proccess input */
+    if (locked == true)
+        return;
+    int y = input->y;
+    int x = input->x;
+    
+    if (ncplane_translate_abs(canvas, &y, &x) == true) {
+        switch(input->id) {
+        case NCKEY_BUTTON1:
+            draw_character_on_canvas(input);
+            break;
+        case NCKEY_BUTTON3:
+            erase_character_on_canvas(input);
+            break;
+        }
     }
 }
 
-struct ncplane *get_canvas_plane(void)
+void lock_canvas(void)
 {
-    return canvas;
+    locked = true;
 }
 
-const struct ncplane *get_const_canvas_plane(void)
+void unlock_canvas(void)
 {
-    const struct ncplane *const_canvas = canvas;
-    return const_canvas;
+    locked = false;
 }
 
 static void draw_character_on_canvas(const struct ncinput *input)
