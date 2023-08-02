@@ -6,13 +6,14 @@
 #include "shad_error.h"
 #include "input.h"
 #include "panel_list.h"
+#include "util.h"
 
 static struct notcurses *nc = NULL;
+static struct panel_list *core_panels = NULL;
 static bool running = false;
 
-void init(void)
+void init(const char *argv)
 {
-
     const char *error_init_message  = "Can't initialize notcurses!\n";
     const char *error_mouse_message = "Can't initialize mouse!\n";
     const char *error_canvas_init_message = "Can't create canvas!\n";
@@ -30,17 +31,22 @@ void init(void)
 
     init_palette(nc);
 
+    /* Create core panels and put them into a list */
+    core_panels = create_list();
+
     struct ncplane *canvas = init_canvas_plane(nc);
-    if (canvas == NULL)
+    if (!canvas)
         die_and_log(error_canvas_init_message);
     else
-        add_panel_to_list(canvas, proccess_input_on_canvas);
-
+        add_panel_to_list(core_panels, canvas, proccess_input_on_canvas);
+    
+    if (argv)
+        blit_image_on_plane(argv, nc, canvas);
     struct ncplane *instrument_panel = init_instrument_panel_plane(nc);
-    if (instrument_panel == NULL)
+    if (!instrument_panel)
         die_and_log(error_instrument_panel_init_message);
     else
-        add_panel_to_list(instrument_panel, proccess_input_on_instrument_panel_plane);
+        add_panel_to_list(core_panels, instrument_panel, proccess_input_on_instrument_panel_plane);
 
     notcurses_render(nc);
     running = true;
@@ -55,14 +61,14 @@ void run(void)
         notcurses_get_blocking(nc, &input);
         if (input.id == 'q')
             running = false;
-        proccess_input(&input);
+        proccess_input(core_panels, &input);
         notcurses_render(nc);
     }
 }
 
 void quit(void)
 {
-    free_panel_list();
+    destroy_list(core_panels);
     close_instument_panel();
     delete_palette();
     notcurses_stop(nc);

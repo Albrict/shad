@@ -4,27 +4,28 @@
 #include "util.h"
 #include "button.h"
 #include "color_picker_panel.h"
-#include "choosen_color_panel.h"
+#include "static_choosen_color_panel.h"
 #include "palette_window.h"
 #include "panel_list.h"
 
 static struct button *more_colors_button = NULL;
+static struct panel_list *list = NULL;
 
 void callback_func(void *data)
 {
-    const char *error_palette_window_init_message = "Can't create palette window!\n";
-    bool is_opened = false;
-    struct ncplane *parent = (struct ncplane*)data;
-    struct ncplane *palette_window = create_palette_window(parent, &is_opened);
-    if (palette_window == NULL)
-        die_and_log(error_palette_window_init_message);
-
-    /* Window is opened - no need to add it to the list */
-    if (is_opened == true)
-        return;
-
+//    const char *error_palette_window_init_message = "Can't create palette window!\n";
+//    bool is_opened = false;
+//    struct ncplane *parent = (struct ncplane*)data;
+//    struct ncplane *palette_window = create_palette_window(parent, &is_opened);
+//    if (palette_window == NULL)
+//        die_and_log(error_palette_window_init_message);
+//
+//    /* Window is opened - no need to add it to the list */
+//    if (is_opened == true)
+//        return;
+//
     /* We're adding this window to global panel list */
-    add_panel_to_list(palette_window, proccess_input_on_palette_window);
+//    add_panel_to_list(palette_window, proccess_input_on_palette_window);
     lock_canvas();
 }
 
@@ -53,15 +54,25 @@ struct ncplane *init_instrument_panel_plane(struct notcurses *nc)
     if (instrument_panel == NULL)
         return NULL;
     create_box(instrument_panel, opts.rows - 1, opts.cols - 1, 0x100);
-
+    
     int color_picker_x = 1; 
     int color_picker_y = 1; 
     color_picker_cols = opts.cols - 2; 
     color_picker_rows = opts.rows / 4;
-
-    init_color_picker(instrument_panel, color_picker_y, color_picker_x, color_picker_rows, color_picker_cols);
-    init_choosen_color_panel(instrument_panel, color_picker_rows, 1, 3, color_picker_cols / 2, NCBOXMASK_TOP);
-
+    
+    list = create_list();
+      
+    struct ncplane *color_picker = create_color_picker_panel(instrument_panel, color_picker_y, color_picker_x, color_picker_rows, color_picker_cols);
+    if (color_picker == NULL)
+        return NULL;
+    else
+        add_panel_to_list(list, color_picker, proccess_input_on_color_picker);
+    
+    struct ncplane *choosen_color = create_static_choosen_color_panel(instrument_panel, color_picker_rows, 1, 3, color_picker_cols / 2, NCBOXMASK_TOP);
+    if (choosen_color == NULL)
+        return NULL;
+    else
+        add_panel_to_list(list, choosen_color, NULL);
     more_colors_button = create_button(instrument_panel, color_picker_rows, color_picker_cols / 2 + 1, 3, color_picker_cols / 2);
     draw_button_box(more_colors_button, NCBOXMASK_TOP);
     draw_text_on_button(more_colors_button, button_text);
@@ -71,7 +82,7 @@ struct ncplane *init_instrument_panel_plane(struct notcurses *nc)
 
 void close_instument_panel(void)
 {
-    delete_button(more_colors_button);
+    destroy_list(list);
 }
 
 void proccess_input_on_instrument_panel_plane(const struct ncinput *input, struct ncplane *instrument_panel)
@@ -79,13 +90,15 @@ void proccess_input_on_instrument_panel_plane(const struct ncinput *input, struc
     int y = input->y;
     int x = input->x;
     
-    proccess_input_on_button(more_colors_button, input);
     if (ncplane_translate_abs(instrument_panel, &y, &x) == true) {
         if (input->id == NCKEY_BUTTON1) {
-            int y = input->y;
-            int x = input->x;
-            if (is_mouse_on_color_picker(y, x) == true)
-                set_color(get_selected_color(input));
+            struct panel_node *first = panel_list_begin(list);
+            while (first) {
+                panel_input_callback callback = get_panel_callback(first);
+                if (callback)
+                    callback(input, get_panel(first));
+                first = panel_list_next(first);
+            }
         }
     }
 }

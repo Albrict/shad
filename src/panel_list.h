@@ -3,15 +3,21 @@
 
 typedef void (*panel_input_callback)(const ncinput *input, struct ncplane *panel);
 
-struct panel_node {
-    struct panel_node *prev;
-    struct panel_node *next;
-    struct ncplane *panel;
+struct panel_node;
+struct panel_list;
 
-    panel_input_callback input_callback;
-};
+/* Allocates double-linked list using panel_node */
+struct panel_list *create_list(void);
+/* Delete list and all it's content */
+void destroy_list(struct panel_list *list);
+/* Delete all objects, but don't destroys a list */
+void clean_list_and_free(struct panel_list *list);
 
-void add_panel_to_list(struct ncplane *panel, panel_input_callback callback);
-void free_panel_list(void);
+void add_panel_to_list(struct panel_list *list, struct ncplane *panel, panel_input_callback input_callback);
 
-struct panel_node *get_first_node(void);
+struct panel_node *panel_list_begin(struct panel_list *list);
+struct panel_node *panel_list_end(struct panel_list *list);
+struct panel_node *panel_list_next(struct panel_node *node);
+
+panel_input_callback get_panel_callback(struct panel_node *node);
+struct ncplane *get_panel(struct panel_node *node);

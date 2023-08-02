@@ -11,10 +11,10 @@ struct label {
 struct label *create_label(struct ncplane *parent, const int y, const int x, 
                            const unsigned int height, const unsigned int width, const char *text)
 {
+    
     struct ncplane_options opts;
     struct ncplane *plane = NULL;
     memset(&opts, 0, sizeof(opts));
-    
     opts.y = y;
     opts.x = x;
     opts.cols = width;

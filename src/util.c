@@ -25,3 +25,31 @@ void create_box(struct ncplane *plane, const int rows, const int cols, unsigned 
 
     ncplane_box(plane, &ul, &ur, &ll, &lr, &hline, &vline, rows, cols, mask); 
 }
+
+bool blit_image_on_plane(const char *filename, struct notcurses *nc, struct ncplane *plane)
+{
+    struct ncvisual_options opts; 
+    memset(&opts, 0, sizeof(struct ncvisual_options));
+
+    opts.n = plane;
+    opts.x = 0;
+    opts.y = 0;
+    opts.begy = 0;
+    opts.begx = 0;
+    opts.lenx = ncplane_dim_x(plane);
+    opts.leny = ncplane_dim_y(plane); 
+    opts.blitter = NCBLIT_1x1;
+    opts.flags = NCVISUAL_OPTION_ADDALPHA;
+    opts.transcolor = 0xFF0000;
+    opts.pxoffx = 0;
+    opts.pxoffy = 0;
+
+    struct ncvisual *visual = ncvisual_from_file(filename);
+    if (visual) {
+        ncvisual_resize(visual, opts.leny, opts.lenx);
+        plane = ncvisual_blit(nc, visual, &opts);
+        return true;
+    } else {
+        return false;
+    }
+}
