@@ -1,7 +1,8 @@
 #include "canvas.h"
 #include "libs/libattopng.h"
-#include "src/shad_error.h"
 #include "static_choosen_color_panel.h"
+
+#define RGBA(r, g, b, a) ((r) | ((g) << 8) | ((b) << 16) | ((a) << 24))
 
 static struct ncplane *canvas = NULL;
 
@@ -28,11 +29,9 @@ struct ncplane *init_canvas_plane(struct notcurses *nc)
     canvas = ncplane_create(notcurses_stdplane(nc), &opts);
 
     if (canvas) {
-        /* Fill up plane with white color */
-        ncplane_set_fg_rgb(canvas, 0xFFFFFF);
         for (unsigned int y = 0; y < ncplane_dim_y(canvas); ++y) {
             for (unsigned int x = 0; x < ncplane_dim_x(canvas); ++x)
-                ncplane_putwc_yx(canvas, y, x,  L'█');
+                ncplane_putchar_yx(canvas, y, x,  ' ');
         }
     }
     return canvas;
@@ -79,8 +78,8 @@ static void draw_character_on_canvas(const struct ncinput *input)
 
 static void erase_character_on_canvas(const struct ncinput *input)
 {
-    ncplane_set_fg_rgb(canvas, 0xFFFFFF);
-    ncplane_putwc_yx(canvas, input->ypx + input->y, input->xpx + input->x, L'█');
+    ncplane_erase_region(canvas, input->ypx + input->y, input->xpx + input->x, 1, 1);
+    ncplane_putchar_yx(canvas, input->ypx + input->y, input->xpx + input->x, ' ');
 }
 
 static void save_plane()
@@ -88,20 +87,21 @@ static void save_plane()
     const int height = ncplane_dim_y(canvas);
     const int width = ncplane_dim_x(canvas);
 
-    uint32_t *data = ncplane_as_rgba(canvas, NCBLIT_1x1, 0, 0, ncplane_dim_y(canvas), ncplane_dim_x(canvas), NULL, NULL);
-    if (data == NULL)
-        die_and_log("Can't save");
     libattopng_t *png = libattopng_new(width, height, PNG_PALETTE);
     int x, y;
 
     png = libattopng_new(width, height, PNG_RGBA);
-    
-    size_t pixel = 0;
 
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
-            libattopng_set_pixel(png, x, y, data[pixel]);
-            ++pixel;
+            struct nccell pixel;
+            if (ncplane_at_yx_cell(canvas, y, x, &pixel) == 1 || ncplane_at_yx_cell(canvas, y, x, &pixel) == -1)
+                libattopng_set_pixel(png, x, y, RGBA(0, 0, 0, 0));
+            else {
+                unsigned int r, g, b;
+                nccell_fg_rgb8(&pixel, &r, &g, &b);
+                libattopng_set_pixel(png, x, y, RGBA(r, g, b, 255));
+            }
         }
     }
 

@@ -39,8 +39,6 @@ bool blit_image_on_plane(const char *filename, struct notcurses *nc, struct ncpl
     opts.lenx = ncplane_dim_x(plane);
     opts.leny = ncplane_dim_y(plane); 
     opts.blitter = NCBLIT_1x1;
-    opts.flags = NCVISUAL_OPTION_ADDALPHA;
-    opts.transcolor = 0xFF0000;
     opts.pxoffx = 0;
     opts.pxoffy = 0;
 
