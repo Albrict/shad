@@ -28,12 +28,12 @@ struct ncplane *init_canvas_plane(struct notcurses *nc)
     
     canvas = ncplane_create(notcurses_stdplane(nc), &opts);
 
-    if (canvas) {
-        for (unsigned int y = 0; y < ncplane_dim_y(canvas); ++y) {
-            for (unsigned int x = 0; x < ncplane_dim_x(canvas); ++x)
-                ncplane_putchar_yx(canvas, y, x,  ' ');
-        }
-    }
+//    if (canvas) {
+//        for (unsigned int y = 0; y < ncplane_dim_y(canvas); ++y) {
+//            for (unsigned int x = 0; x < ncplane_dim_x(canvas); ++x)
+//                ncplane_putchar_yx(canvas, y, x,  ' ');
+//        }
+//    }
     return canvas;
 }
 
@@ -72,14 +72,13 @@ void unlock_canvas(void)
 
 static void draw_character_on_canvas(const struct ncinput *input)
 {
-    ncplane_set_fg_rgb(canvas, get_choosen_color());
-    ncplane_putwc_yx(canvas, input->ypx + input->y, input->xpx + input->x, L'█');
+    ncplane_set_bg_rgb(canvas, get_choosen_color());
+    ncplane_putchar_yx(canvas, input->ypx + input->y, input->xpx + input->x, ' ');
 }
 
 static void erase_character_on_canvas(const struct ncinput *input)
 {
     ncplane_erase_region(canvas, input->ypx + input->y, input->xpx + input->x, 1, 1);
-    ncplane_putchar_yx(canvas, input->ypx + input->y, input->xpx + input->x, ' ');
 }
 
 static void save_plane()
@@ -95,11 +94,12 @@ static void save_plane()
     for (y = 0; y < height; y++) {
         for (x = 0; x < width; x++) {
             struct nccell pixel;
-            if (ncplane_at_yx_cell(canvas, y, x, &pixel) == 1 || ncplane_at_yx_cell(canvas, y, x, &pixel) == -1)
+            ncplane_at_yx_cell(canvas, y, x, &pixel);
+            if (pixel.width == 0)
                 libattopng_set_pixel(png, x, y, RGBA(0, 0, 0, 0));
             else {
                 unsigned int r, g, b;
-                nccell_fg_rgb8(&pixel, &r, &g, &b);
+                nccell_bg_rgb8(&pixel, &r, &g, &b);
                 libattopng_set_pixel(png, x, y, RGBA(r, g, b, 255));
             }
         }
