@@ -4,12 +4,11 @@
 #include "util.h"
 #include "button.h"
 #include "color_picker_panel.h"
-#include "static_choosen_color_panel.h"
+#include "selected_color_panel.h"
 #include "palette_window.h"
-#include "panel_list.h"
 
-static struct button *more_colors_button = NULL;
-static struct panel_list *list = NULL;
+//static struct button *more_colors_button = NULL;
+//static struct panel_list *list = NULL;
 
 void callback_func(void *data)
 {
@@ -26,79 +25,84 @@ void callback_func(void *data)
 //
     /* We're adding this window to global panel list */
 //    add_panel_to_list(palette_window, proccess_input_on_palette_window);
-    lock_canvas();
+//    lock_canvas();
 }
 
-struct ncplane *init_instrument_panel_plane(struct notcurses *nc)
+static void proccess_input_on_instrument_panel(struct ncpanel *panel, const struct ncinput *input, void *data);
+static void clean_up_callback(struct ncpanel *panel, void *clean_up_data);
+
+struct ncpanel *create_instrument_panel(struct ncplane *parent)
 {
-    const wchar_t *button_text = L"Palette";
-    const char *panel_name = "instruments";
+    struct ncpanel *instrument_panel = NULL;
+    struct ncpanel_list *panel_list = NULL;
+    struct notcurses *nc = ncplane_notcurses(parent);
 
-    struct ncplane *instrument_panel = NULL;
-    unsigned int terminal_rows = 0;
-    unsigned int terminal_cols = 0;
-
-    int color_picker_rows = 0;
-    int color_picker_cols = 0;
-
-    struct ncplane_options opts;
-    memset(&opts, 0, sizeof(struct ncplane_options));
+    unsigned int terminal_rows;
+    unsigned int terminal_cols;
     notcurses_term_dim_yx(nc, &terminal_rows, &terminal_cols);
 
-    opts.y = 0;
-    opts.x = terminal_cols / 2 + terminal_cols / 4 + 1;
-    opts.rows = terminal_rows;
-    opts.cols = terminal_cols - opts.x;
-    opts.name = panel_name;
-    instrument_panel = ncplane_create(notcurses_stdplane(nc), &opts);
-    if (instrument_panel == NULL)
-        return NULL;
-    create_box(instrument_panel, opts.rows - 1, opts.cols - 1, 0x100);
+    const int y = 0;
+    const int x = terminal_cols / 2 + terminal_cols / 4 + 1;
+    const unsigned int rows = terminal_rows;
+    const unsigned int cols = terminal_cols - x;
+
+    instrument_panel = ncpanel_create(parent, y, x, rows, cols); 
+    if (instrument_panel) {
+        panel_list = ncpanel_create_list();
+        if (panel_list == NULL)
+            return NULL;
+
+        ncpanel_create_box(instrument_panel, rows - 1, cols - 1, 0x100);
+        ncpanel_bind_input_callback(instrument_panel, proccess_input_on_instrument_panel, panel_list);
+        ncpanel_bind_clean_up_callback(instrument_panel, clean_up_callback, panel_list);
+
+        int color_picker_x = 1; 
+        int color_picker_y = 1; 
+        int color_picker_cols = cols - 2; 
+        int color_picker_rows = rows / 4;
+
+        struct ncpanel *color_picker = create_color_picker_panel(ncpanel_get_plane(instrument_panel), color_picker_y, color_picker_x, 
+                                                                 color_picker_rows, color_picker_cols);
+        
+        if (color_picker == NULL)
+            return NULL;
+        else
+            ncpanel_add_panel_to_list(panel_list, color_picker);
+//        
+        struct ncpanel *selected_color = create_selected_color_panel(ncpanel_get_plane(instrument_panel), 
+                                                                     color_picker_rows, 1, 3, color_picker_cols / 2, NCBOXMASK_TOP);
+        if (selected_color == NULL)
+            return NULL;
+        else
+            ncpanel_add_panel_to_list(panel_list, selected_color);
+//        more_colors_button = create_button(instrument_panel, color_picker_rows, color_picker_cols / 2 + 1, 3, color_picker_cols / 2);
+//        draw_button_box(more_colors_button, NCBOXMASK_TOP);
+//        draw_text_on_button(more_colors_button, button_text);
+//        bind_callback(more_colors_button, callback_func, notcurses_stdplane(nc));
+    }
     
-    int color_picker_x = 1; 
-    int color_picker_y = 1; 
-    color_picker_cols = opts.cols - 2; 
-    color_picker_rows = opts.rows / 4;
-    
-    list = create_list();
-      
-    struct ncplane *color_picker = create_color_picker_panel(instrument_panel, color_picker_y, color_picker_x, color_picker_rows, color_picker_cols);
-    if (color_picker == NULL)
-        return NULL;
-    else
-        add_panel_to_list(list, color_picker, proccess_input_on_color_picker);
-    
-    struct ncplane *choosen_color = create_static_choosen_color_panel(instrument_panel, color_picker_rows, 1, 3, color_picker_cols / 2, NCBOXMASK_TOP);
-    if (choosen_color == NULL)
-        return NULL;
-    else
-        add_panel_to_list(list, choosen_color, NULL);
-    more_colors_button = create_button(instrument_panel, color_picker_rows, color_picker_cols / 2 + 1, 3, color_picker_cols / 2);
-    draw_button_box(more_colors_button, NCBOXMASK_TOP);
-    draw_text_on_button(more_colors_button, button_text);
-    bind_callback(more_colors_button, callback_func, notcurses_stdplane(nc));
     return instrument_panel;
 }
 
-void close_instument_panel(void)
+static void proccess_input_on_instrument_panel(struct ncpanel *panel, const struct ncinput *input, void *data)
 {
-    destroy_list(list);
-}
+    struct ncplane *instrument_panel_plane = ncpanel_get_plane(panel);
+    struct ncpanel_list *panel_list = (struct ncpanel_list*)data;
 
-void proccess_input_on_instrument_panel_plane(const struct ncinput *input, struct ncplane *instrument_panel)
-{
     int y = input->y;
     int x = input->x;
     
-    if (ncplane_translate_abs(instrument_panel, &y, &x) == true) {
-        if (input->id == NCKEY_BUTTON1) {
-            struct panel_node *first = panel_list_begin(list);
-            while (first) {
-                panel_input_callback callback = get_panel_callback(first);
-                if (callback)
-                    callback(input, get_panel(first));
-                first = panel_list_next(first);
-            }
+    if (ncplane_translate_abs(instrument_panel_plane, &y, &x) == true) {
+        struct ncpanel_node *first = ncpanel_list_begin(panel_list);
+        while (first) {
+            ncpanel_proccess_input(ncpanel_get_panel(first), input);
+            first = ncpanel_list_next(first);
         }
     }
+}
+
+static void clean_up_callback(struct ncpanel *panel, void *clean_up_data)
+{
+    struct ncpanel_list *panel_list = (struct ncpanel_list*)clean_up_data;
+    ncpanel_destroy_list(panel_list);
 }

@@ -4,13 +4,14 @@
 #include "canvas.h"
 #include "palette.h"
 #include "shad_error.h"
-#include "input.h"
-#include "panel_list.h"
+#include "ncpanel.h"
 #include "util.h"
 
 static struct notcurses *nc = NULL;
-static struct panel_list *core_panels = NULL;
+static struct ncpanel_list *core_panels = NULL;
 static bool running = false;
+
+static void proccess_input(struct ncpanel_list *core_panels, const struct ncinput *input);
 
 void init(const char *argv)
 {
@@ -32,21 +33,22 @@ void init(const char *argv)
     init_palette(nc);
 
     /* Create core panels and put them into a list */
-    core_panels = create_list();
+    core_panels = ncpanel_create_list();
 
-    struct ncplane *canvas = init_canvas_plane(nc);
+    struct ncpanel *canvas = create_canvas_panel(notcurses_stdplane(nc));
     if (!canvas)
         die_and_log(error_canvas_init_message);
     else
-        add_panel_to_list(core_panels, canvas, proccess_input_on_canvas);
+        ncpanel_add_panel_to_list(core_panels, canvas);
     
     if (argv)
-        blit_image_on_plane(argv, nc, canvas);
-    struct ncplane *instrument_panel = init_instrument_panel_plane(nc);
+        blit_image_on_plane(argv, nc, ncpanel_get_plane(canvas));
+
+    struct ncpanel *instrument_panel = create_instrument_panel(notcurses_stdplane(nc));
     if (!instrument_panel)
         die_and_log(error_instrument_panel_init_message);
     else
-        add_panel_to_list(core_panels, instrument_panel, proccess_input_on_instrument_panel_plane);
+        ncpanel_add_panel_to_list(core_panels, instrument_panel);
 
     notcurses_render(nc);
     running = true;
@@ -68,8 +70,16 @@ void run(void)
 
 void quit(void)
 {
-    destroy_list(core_panels);
-    close_instument_panel();
+    ncpanel_destroy_list(core_panels);
     delete_palette();
     notcurses_stop(nc);
+}
+
+static void proccess_input(struct ncpanel_list *core_panels, const struct ncinput *input)
+{
+    struct ncpanel_node *first = ncpanel_list_begin(core_panels);
+    while (first) {
+        ncpanel_proccess_input(ncpanel_get_panel(first), input);
+        first = ncpanel_list_next(first);
+    }
 }

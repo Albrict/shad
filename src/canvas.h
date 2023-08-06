@@ -1,8 +1,7 @@
 #pragma once
-#include <notcurses/notcurses.h>
+#include "ncpanel.h"
 
-struct ncplane *init_canvas_plane(struct notcurses *nc);
-void proccess_input_on_canvas(const struct ncinput *input, struct ncplane *canvas);
+struct ncpanel *create_canvas_panel(struct ncplane *parent);
 
 /* After locking canvas - user can't draw on it */
 void lock_canvas(void);

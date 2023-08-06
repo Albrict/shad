@@ -1,44 +1,41 @@
 #include "color_picker_panel.h"
-#include "static_choosen_color_panel.h"
 #include "palette.h"
-#include "util.h"
+#include "state.h"
 
-static void fill_color_picker(struct ncplane *color_picker, const int rows, const int cols);
+static void fill_color_picker(struct ncpanel *color_picker, const int rows, const int cols);
 
-struct ncplane *create_color_picker_panel(struct ncplane *parent, const int y, const int x, const int rows, const int cols)
+static void proccess_input_on_color_picker(struct ncpanel *panel, const struct ncinput *input, void *input_data);
+
+struct ncpanel *create_color_picker_panel(struct ncplane *parent, const int y, const int x, const int rows, const int cols)
 {
-    struct ncplane *color_picker = NULL;
-    struct ncplane_options opts;
-    memset(&opts, 0, sizeof(struct ncplane_options));
-    opts.y = y;
-    opts.x = x;
-    opts.rows = rows;
-    opts.cols = cols;
+    struct ncpanel *color_picker = NULL;
+    color_picker = ncpanel_create(parent, y, x, rows, cols);
+    if (color_picker) {
+        ncpanel_bind_input_callback(color_picker, proccess_input_on_color_picker, NULL);
+        ncpanel_create_box(color_picker, rows - 1, cols - 1, 0x100);
+        fill_color_picker(color_picker, rows - 1, cols - 1);
+    }
 
-    color_picker = ncplane_create(parent, &opts);
-    if (color_picker == NULL)
-        return NULL;
-
-    create_box(color_picker, rows - 1, cols - 1, 0x100);
-    fill_color_picker(color_picker, rows - 1, cols - 1);
     return color_picker;
 }
 
-void proccess_input_on_color_picker(const struct ncinput *input, struct ncplane *color_picker)
+static void proccess_input_on_color_picker(struct ncpanel *panel, const struct ncinput *input, void *input_data)
 {
+    struct ncplane *color_picker_plane = ncpanel_get_plane(panel);
     int y = input->y;
     int x = input->x;
     uint64_t channels = 0;
-    if (ncplane_translate_abs(color_picker, &y, &x) == true) {
-        ncplane_at_yx(color_picker, y, x, NULL, &channels);
-        set_color(ncchannels_fg_rgb(channels));
-    } else {
-        return;
-    }
+    if (ncplane_translate_abs(color_picker_plane, &y, &x) == true) {
+        if (input->id == NCKEY_BUTTON1) {
+            ncplane_at_yx(color_picker_plane, y, x, NULL, &channels);
+            select_color(ncchannels_fg_rgb(channels));
+        }
+    } 
 }
 
-static void fill_color_picker(struct ncplane *color_picker, const int rows, const int cols)
+static void fill_color_picker(struct ncpanel *color_picker, const int rows, const int cols)
 {
+    struct ncplane *color_picker_plane = ncpanel_get_plane(color_picker);
     uint32_t color;
     int color_id = 1;
     for (int y = 1; y < rows; ++y) {
@@ -46,8 +43,8 @@ static void fill_color_picker(struct ncplane *color_picker, const int rows, cons
             if (color_id == get_amount_of_colors())
                 break;
             ncpalette_get(get_palette(), color_id,  &color);
-            ncplane_set_fg_rgb(color_picker, color);
-            ncplane_putwc_yx(color_picker, y, x, L'▊');
+            ncplane_set_fg_rgb(color_picker_plane, color);
+            ncplane_putwc_yx(color_picker_plane, y, x, L'▊');
             ++color_id;
         }
     }
