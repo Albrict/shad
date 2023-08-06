@@ -6,6 +6,7 @@
 #include "shad_error.h"
 #include "ncpanel.h"
 #include "util.h"
+#include "menu.h"
 
 static struct notcurses *nc = NULL;
 static struct ncpanel_list *core_panels = NULL;
@@ -41,15 +42,21 @@ void init(const char *argv)
     else
         ncpanel_add_panel_to_list(core_panels, canvas);
     
-    if (argv)
-        blit_image_on_plane(argv, nc, ncpanel_get_plane(canvas));
 
     struct ncpanel *instrument_panel = create_instrument_panel(notcurses_stdplane(nc));
     if (!instrument_panel)
         die_and_log(error_instrument_panel_init_message);
     else
         ncpanel_add_panel_to_list(core_panels, instrument_panel);
+    
+    struct ncpanel *menu = create_menu_panel(notcurses_stdplane(nc));
+    if (!menu)
+        die_and_log("Can't create menu!\n");
+    else
+        ncpanel_add_panel_to_list(core_panels, menu);
 
+    if (argv)
+        blit_image_on_plane(argv, nc, ncpanel_get_plane(canvas));
     notcurses_render(nc);
     running = true;
 }

@@ -20,9 +20,9 @@ struct ncpanel *create_canvas_panel(struct ncplane *parent)
     notcurses_term_dim_yx(nc, &terminal_rows, &terminal_cols);
     
     const int y = 1;
-    const int x = 1;
-    unsigned int rows = terminal_rows - 2;
-    unsigned int cols = terminal_cols / 2 + terminal_cols / 4;
+    const int x = 0;
+    const unsigned int rows = terminal_rows - 2;
+    const unsigned int cols = terminal_cols / 2 + terminal_cols / 4;
     
     canvas_panel = ncpanel_create(parent, y, x, rows, cols);
     if (canvas_panel)
@@ -30,15 +30,15 @@ struct ncpanel *create_canvas_panel(struct ncplane *parent)
     return canvas_panel;
 }
 
-static void draw_character_on_canvas(struct ncplane *canvas_panel_plane, const struct ncinput *input)
+static void draw_character_on_canvas(struct ncplane *canvas_panel_plane, const int y, const int x)
 {
     ncplane_set_bg_rgb(canvas_panel_plane, get_selected_color());
-    ncplane_putchar_yx(canvas_panel_plane, input->ypx + input->y, input->xpx + input->x, ' ');
+    ncplane_putchar_yx(canvas_panel_plane, y, x, ' ');
 }
 
-static void erase_character_on_canvas(struct ncplane *canvas_panel_plane, const struct ncinput *input)
+static void erase_character_on_canvas(struct ncplane *canvas_panel_plane, const int y, const int x)
 {
-    ncplane_erase_region(canvas_panel_plane, input->ypx + input->y, input->xpx + input->x, 1, 1);
+    ncplane_erase_region(canvas_panel_plane, y, x, 1, 1);
 }
 
 static void save_plane(struct ncplane *canvas_panel_plane)
@@ -81,10 +81,10 @@ static void proccess_input_on_canvas(struct ncpanel *canvas_panel, const struct 
     if (ncplane_translate_abs(canvas_panel_plane, &y, &x) == true) {
         switch(input->id) {
         case NCKEY_BUTTON1:
-            draw_character_on_canvas(canvas_panel_plane, input);
+            draw_character_on_canvas(canvas_panel_plane, y, x);
             break;
         case NCKEY_BUTTON3:
-            erase_character_on_canvas(canvas_panel_plane, input);
+            erase_character_on_canvas(canvas_panel_plane, y, x);
             break;
         case NCKEY_BUTTON2:
             save_plane(canvas_panel_plane);

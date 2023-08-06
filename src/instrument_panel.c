@@ -1,32 +1,6 @@
 #include "instrument_panel.h"
-#include "shad_error.h"
-#include "canvas.h"
-#include "util.h"
-#include "button.h"
 #include "color_picker_panel.h"
 #include "selected_color_panel.h"
-#include "palette_window.h"
-
-//static struct button *more_colors_button = NULL;
-//static struct panel_list *list = NULL;
-
-void callback_func(void *data)
-{
-//    const char *error_palette_window_init_message = "Can't create palette window!\n";
-//    bool is_opened = false;
-//    struct ncplane *parent = (struct ncplane*)data;
-//    struct ncplane *palette_window = create_palette_window(parent, &is_opened);
-//    if (palette_window == NULL)
-//        die_and_log(error_palette_window_init_message);
-//
-//    /* Window is opened - no need to add it to the list */
-//    if (is_opened == true)
-//        return;
-//
-    /* We're adding this window to global panel list */
-//    add_panel_to_list(palette_window, proccess_input_on_palette_window);
-//    lock_canvas();
-}
 
 static void proccess_input_on_instrument_panel(struct ncpanel *panel, const struct ncinput *input, void *data);
 static void clean_up_callback(struct ncpanel *panel, void *clean_up_data);
@@ -75,10 +49,6 @@ struct ncpanel *create_instrument_panel(struct ncplane *parent)
             return NULL;
         else
             ncpanel_add_panel_to_list(panel_list, selected_color);
-//        more_colors_button = create_button(instrument_panel, color_picker_rows, color_picker_cols / 2 + 1, 3, color_picker_cols / 2);
-//        draw_button_box(more_colors_button, NCBOXMASK_TOP);
-//        draw_text_on_button(more_colors_button, button_text);
-//        bind_callback(more_colors_button, callback_func, notcurses_stdplane(nc));
     }
     
     return instrument_panel;

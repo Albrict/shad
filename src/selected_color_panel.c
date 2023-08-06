@@ -2,7 +2,7 @@
 #include "palette.h"
 #include "state.h"
 
-static const wchar_t *selected_color_str = L"Selected color:";
+static const wchar_t *selected_color_str = L"Current color:";
 
 static void proccess_input_on_selected_color(struct ncpanel *panel, const struct ncinput *input, void *input_data);
 

@@ -10,6 +10,8 @@ typedef void (*ncpanel_clean_up_callback)(struct ncpanel*, void *clean_up_data);
 
 /* ncpanel operations */
 struct ncpanel *ncpanel_create(struct ncplane *parent, const int y, const int x, const unsigned int rows, const int cols);
+/* wraps ncplane into ncpanel */
+struct ncpanel *ncpanel_wrap_plane(struct ncplane *plane, const int y, const int x, const unsigned int rows, const unsigned int cols);
 void ncpanel_destroy(struct ncpanel *panel);
 
 void ncpanel_bind_input_callback(struct ncpanel *panel, ncpanel_input_callback callback, void *data);

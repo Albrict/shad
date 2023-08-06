@@ -1,6 +1,5 @@
 #include "ncpanel.h"
 
-
 struct ncpanel {
     int y, x;
     unsigned int rows, cols;
@@ -48,6 +47,23 @@ struct ncpanel *ncpanel_create(struct ncplane *parent, const int y, const int x,
             panel = NULL;
             return panel;
         }
+    }
+    return panel;
+}
+
+struct ncpanel *ncpanel_wrap_plane(struct ncplane *plane, const int y, const int x, const unsigned int rows, const unsigned int cols)
+{
+    struct ncpanel *panel = malloc(sizeof(struct ncpanel));
+    if (panel) {
+        panel->y = y;
+        panel->x = x;
+        panel->rows = rows;
+        panel->cols = cols;
+        panel->plane = plane;
+        panel->input_callback = NULL;
+        panel->clean_up_callback = NULL;
+        panel->data = NULL;
+        panel->clean_up_data = NULL;
     }
     return panel;
 }
