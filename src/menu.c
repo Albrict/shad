@@ -20,7 +20,10 @@ struct ncpanel *create_menu_panel(struct ncplane *parent)
     memset(&mopts, 0, sizeof(mopts));
     mopts.sections = sections;
     mopts.sectioncount = sizeof(sections) / sizeof(*sections);
-
+    ncchannels_set_fg_rgb(&mopts.headerchannels, 0x00ff00);
+    ncchannels_set_bg_rgb(&mopts.headerchannels, 0x000000);
+    ncchannels_set_fg_rgb(&mopts.sectionchannels, 0xb0d700);
+    ncchannels_set_bg_rgb(&mopts.sectionchannels, 0x000000);
 
     unsigned rows, cols;
     struct notcurses *nc = ncplane_notcurses(parent);
@@ -43,11 +46,11 @@ static void proccess_input_on_menu(struct ncpanel *panel, const struct ncinput *
         const char* sel;
         if( (sel = ncmenu_mouse_selected(menu, input, NULL)) ){
             if(sel && !strcmp(sel, "Quit"))
-                exit(1);
+                ncpanel_notify_observers(panel, NULL, NCPANEL_EVENT_EXIT);
             if(sel && !strcmp(sel, "Save"))
-                exit(1);
+                ncpanel_notify_observers(panel, NULL, NCPANEL_EVENT_SAVE);
             if (input->id == 'q')
-                exit(1);
+                ncpanel_notify_observers(panel, NULL, NCPANEL_EVENT_EXIT);
         }
     }
 }
