@@ -3,68 +3,69 @@
 #include "instrument_panel.h"
 #include "menu.h"
 
-static void proccess_input_and_update(struct ncpanel *main_window, const struct ncinput *input, void *data);
-static void clean_up(struct ncpanel *main_window, void *clean_up_data);
 static void update(struct ncpanel *main_screen, void *update_data);
 
-struct ncpanel *create_main_screen_panel(struct notcurses *nc, bool *running, char *filename)
+struct ncpanel *create_main_screen_panel(struct notcurses *nc, bool *running, const char *filename)
 {
     const int y = 1;
     const int x = 1;
 
-    unsigned int rows, cols;
-    notcurses_term_dim_yx(nc, &rows, &cols);
+    unsigned int terminal_rows, terminal_cols;
+    notcurses_term_dim_yx(nc, &terminal_rows, &terminal_cols);
     
-    struct ncpanel *main_screen = ncpanel_create(notcurses_stdplane(nc), y, x, rows, cols);
+    struct ncpanel *main_screen = ncpanel_create(notcurses_stdplane(nc), y, x, terminal_rows, terminal_cols);
+    struct ncpanel *canvas = NULL;
+    struct ncpanel *instrument_panel = NULL;
+    struct ncpanel *menu = NULL;
     if (main_screen) {
-        struct ncpanel_list *panel_list = ncpanel_create_list();
-        if (!panel_list)
-            return NULL;
+        const unsigned int canvas_rows = terminal_rows - 2;
+        const unsigned int canvas_cols = terminal_cols / 2 + terminal_cols / 4;
 
-        struct ncpanel *canvas = create_canvas_panel(notcurses_stdplane(nc), filename);
-        if (!canvas)
-            return NULL;
-        else
-            ncpanel_add_panel_to_list(panel_list, canvas);
+        canvas = create_canvas_panel(notcurses_stdplane(nc), filename, canvas_rows, canvas_cols);
+        if (!canvas) {
+            goto ncpanel_err;
+        } else {
+            if (ncpanel_add_child(main_screen, canvas) == false)
+                goto canvas_err;
+        }
+
+        instrument_panel = create_instrument_panel(notcurses_stdplane(nc), canvas);
+        if (!instrument_panel) {
+            goto ncpanel_err;
+        } else {
+            if (ncpanel_add_child(main_screen, instrument_panel) == false)
+                goto instrument_panel_err;
+        }
         
+        menu = create_menu_panel(notcurses_stdplane(nc));
+        if (!menu) {
+            goto ncpanel_err;
+        } else {
+            if (ncpanel_add_child(main_screen, menu) == false)
+                goto menu_err;
+        }
 
-        struct ncpanel *instrument_panel = create_instrument_panel(notcurses_stdplane(nc), canvas);
-        if (!instrument_panel)
-            return NULL;
-        else
-            ncpanel_add_panel_to_list(panel_list, instrument_panel);
-        
-        struct ncpanel *menu = create_menu_panel(notcurses_stdplane(nc));
-        if (!menu)
-            return NULL;
-        else
-            ncpanel_add_panel_to_list(panel_list, menu);
-
-        ncpanel_bind_input_callback(main_screen, proccess_input_and_update, panel_list);
         ncpanel_bind_update_callback(main_screen, update, running);
-        ncpanel_bind_clean_up_callback(main_screen, clean_up, panel_list);
-
         ncpanel_bind_observer_and_subject(main_screen, menu);
         ncpanel_bind_observer_and_subject(canvas, menu);
+
+        if (filename) {
+            if (ncpanel_blit_image_from_file(filename, canvas, NCBLIT_1x1) == false)
+                goto menu_err;
+        }
     }
     return main_screen;
-}
-
-static void proccess_input_and_update(struct ncpanel *main_window, const struct ncinput *input, void *data)
-{
-    struct ncpanel_list *panel_list = (struct ncpanel_list*)data;
-    struct ncpanel_node *first = ncpanel_list_begin(panel_list);
-    while (first) {
-        ncpanel_proccess_input_and_update(ncpanel_get_panel(first), input);
-        first = ncpanel_list_next(first);
-    }
-}
-
-static void clean_up(struct ncpanel *main_window, void *clean_up_data)
-{
-    struct ncpanel_list *panel_list = (struct ncpanel_list*)clean_up_data;
-    ncpanel_destroy_list(panel_list);
-    panel_list = NULL;
+menu_err:
+    ncpanel_destroy(menu);
+instrument_panel_err:
+    ncpanel_destroy(instrument_panel);
+canvas_err:
+    ncpanel_destroy(canvas);
+    ncpanel_destroy(main_screen);
+    return NULL;
+ncpanel_err:
+    ncpanel_destroy(main_screen);
+    return NULL;
 }
 
 static void update(struct ncpanel *main_screen, void *update_data)

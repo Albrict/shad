@@ -1,5 +1,5 @@
 #pragma once
 
-void init(char *argv);
+void init(const char *argv);
 void run(void);
 void quit(void);

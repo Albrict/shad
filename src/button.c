@@ -1,5 +1,4 @@
 #include "button.h"
-#include "util.h"
 
 struct button {
     int y, x;
@@ -68,7 +67,7 @@ void proccess_input_on_button(struct button *button, const ncinput *input)
 
 void draw_button_box(struct button *button, unsigned int mask)
 {
-    create_box(button->plane, button->height- 1, button->width - 1, mask);
+//    create_box(button->plane, button->height- 1, button->width - 1, mask);
 }
 
 void draw_text_on_button(struct button *button, const wchar_t *text)

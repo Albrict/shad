@@ -1,7 +1,7 @@
 #include "shad.h"
 #include <stdlib.h>
 
-int main(int argc, char **argv)
+int main(const int argc, const char **argv)
 {
     if (argc < 2)
         init(NULL);

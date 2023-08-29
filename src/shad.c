@@ -1,4 +1,5 @@
 #include <locale.h>
+#include <getopt.h>
 
 #include "main_screen_panel.h"
 #include "palette.h"
@@ -9,7 +10,9 @@ static struct notcurses *nc = NULL;
 static struct ncpanel *main_screen = NULL;
 static bool running = false;
 
-void init(char *argv)
+static void parse_arguments(const char *argv);
+
+void init(const char *argv)
 {
     const char *error_init_message  = "Can't initialize notcurses!\n";
     const char *error_mouse_message = "Can't initialize mouse!\n";
@@ -26,7 +29,7 @@ void init(char *argv)
         die_and_log(error_mouse_message);
 
     init_palette(nc);
-    
+     
     main_screen = create_main_screen_panel(nc, &running, argv);
     if (!main_screen)
         die_and_log(error_main_screen_message);
@@ -39,7 +42,7 @@ void run(void)
 {
     struct ncinput input;
     memset(&input, 0, sizeof(struct ncinput));
-    
+     
     while (running) {
         notcurses_get_blocking(nc, &input);
         if (input.id == 'q')
@@ -54,4 +57,9 @@ void quit(void)
     ncpanel_destroy(main_screen);
     delete_palette();
     notcurses_stop(nc);
+}
+
+static void parse_arguments(const char *argv)
+{
+    ;
 }
