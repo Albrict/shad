@@ -1,6 +1,6 @@
 #include <locale.h>
-#include <getopt.h>
 
+#include "shad.h"
 #include "main_screen_panel.h"
 #include "palette.h"
 #include "shad_error.h"
@@ -10,9 +10,7 @@ static struct notcurses *nc = NULL;
 static struct ncpanel *main_screen = NULL;
 static bool running = false;
 
-static void parse_arguments(const char *argv);
-
-void init(const char *argv)
+void init(const struct shad_opts opts)
 {
     const char *error_init_message  = "Can't initialize notcurses!\n";
     const char *error_mouse_message = "Can't initialize mouse!\n";
@@ -30,7 +28,7 @@ void init(const char *argv)
 
     init_palette(nc);
      
-    main_screen = create_main_screen_panel(nc, &running, argv);
+    main_screen = create_main_screen_panel(nc, &running, &opts);
     if (!main_screen)
         die_and_log(error_main_screen_message);
     
@@ -57,9 +55,4 @@ void quit(void)
     ncpanel_destroy(main_screen);
     delete_palette();
     notcurses_stop(nc);
-}
-
-static void parse_arguments(const char *argv)
-{
-    ;
 }

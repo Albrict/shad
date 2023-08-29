@@ -61,7 +61,6 @@ static bool ncpanel_add_observer_to_list(struct ncpanel_observer_list *observer_
 
 static struct ncpanel_list *ncpanel_create_list(void);
 static void ncpanel_destroy_list(struct ncpanel_list *list);
-static void ncpanel_clean_list_and_free(struct ncpanel_list *list);
 static bool ncpanel_add_panel_to_list(struct ncpanel_list *list, struct ncpanel *panel);
 
 static struct ncpanel *ncpanel_get_panel(struct ncpanel_node *node);
@@ -166,7 +165,7 @@ void ncpanel_destroy(struct ncpanel *panel)
     panel->plane = NULL;
     
     if (panel->childs)
-        ncpanel_clean_list_and_free(panel->childs);
+        ncpanel_destroy_list(panel->childs);
 
     ncpanel_destroy_observer(panel->observer);
     panel->observer = NULL;
@@ -363,19 +362,6 @@ static void ncpanel_destroy_list(struct ncpanel_list *list)
         tmp = NULL;
     }
     free(list);
-}
-
-static void ncpanel_clean_list_and_free(struct ncpanel_list *list)
-{
-    struct ncpanel_node *tmp = NULL;
-    while (list->first) {
-        tmp = list->first;
-        list->first = list->first->next;
-        ncpanel_destroy(tmp->panel);
-        tmp = NULL;
-    }
-    list->first = NULL;
-    list->last = NULL;
 }
 
 static bool ncpanel_add_panel_to_list(struct ncpanel_list *list, struct ncpanel *panel)

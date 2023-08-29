@@ -1,7 +1,8 @@
 #include "canvas.h"
-#include "libs/libattopng.h"
 #include "palette.h"
-#include "src/color.h"
+#include "color.h"
+
+#include "libs/libattopng.h"
 
 #define RGBA(r, g, b, a) ((r) | ((g) << 8) | ((b) << 16) | ((a) << 24))
 

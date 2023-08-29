@@ -2,10 +2,11 @@
 #include "canvas.h"
 #include "instrument_panel.h"
 #include "menu.h"
+#include "shad.h"
 
 static void update(struct ncpanel *main_screen, void *update_data);
 
-struct ncpanel *create_main_screen_panel(struct notcurses *nc, bool *running, const char *filename)
+struct ncpanel *create_main_screen_panel(struct notcurses *nc, bool *running, const struct shad_opts *opts)
 {
     const int y = 1;
     const int x = 1;
@@ -18,10 +19,15 @@ struct ncpanel *create_main_screen_panel(struct notcurses *nc, bool *running, co
     struct ncpanel *instrument_panel = NULL;
     struct ncpanel *menu = NULL;
     if (main_screen) {
-        const unsigned int canvas_rows = terminal_rows - 2;
-        const unsigned int canvas_cols = terminal_cols / 2 + terminal_cols / 4;
+        unsigned int canvas_rows = terminal_rows - 2;
+        unsigned int canvas_cols = terminal_cols / 2 + terminal_cols / 4;
+        
+        if (opts->canvas_height > 0)
+            canvas_rows = opts->canvas_height;
+        if (opts->canvas_width > 0)
+            canvas_cols = opts->canvas_width;     
 
-        canvas = create_canvas_panel(notcurses_stdplane(nc), filename, canvas_rows, canvas_cols);
+        canvas = create_canvas_panel(notcurses_stdplane(nc), opts->filename, canvas_rows, canvas_cols);
         if (!canvas) {
             goto ncpanel_err;
         } else {
@@ -48,11 +54,9 @@ struct ncpanel *create_main_screen_panel(struct notcurses *nc, bool *running, co
         ncpanel_bind_update_callback(main_screen, update, running);
         ncpanel_bind_observer_and_subject(main_screen, menu);
         ncpanel_bind_observer_and_subject(canvas, menu);
-
-        if (filename) {
-            if (ncpanel_blit_image_from_file(filename, canvas, NCBLIT_1x1) == false)
-                goto menu_err;
-        }
+        
+        if (opts->filename)
+            ncpanel_blit_image_from_file(opts->filename, canvas, NCBLIT_1x1);
     }
     return main_screen;
 menu_err:
