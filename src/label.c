@@ -1,5 +1,4 @@
 #include "label.h"
-#include "util.h"
 
 struct label {
     int y, x;
@@ -59,11 +58,11 @@ void draw_label(struct label *label)
 
 void draw_label_box(struct label *label, unsigned int mask)
 {
-    create_box(label->plane, label->height- 1, label->width - 1, mask);
+//    create_box(label->plane, label->height- 1, label->width - 1, mask);
 }
 
 void draw_label_and_box(struct label *label, unsigned int mask)
 {
-    create_box(label->plane, label->height- 1, label->width - 1, mask);
+//    create_box(label->plane, label->height- 1, label->width - 1, mask);
     ncplane_putstr_yx(label->plane, label->height / 2, label->x, label->text); 
 }
