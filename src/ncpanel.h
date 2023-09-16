@@ -14,10 +14,14 @@ typedef void (*ncpanel_input_callback)(struct ncpanel*, const struct ncinput*, v
 typedef void (*ncpanel_update_callback)(struct ncpanel*, void *update_data);
 typedef void (*ncpanel_clean_up_callback)(struct ncpanel*, void *clean_up_data);
 
+/* Library initialization/quit */
+bool ncpanel_init(struct notcurses *nc);
+void ncpanel_quit(void);
 
-
+/* Main cycle */ 
+void ncpanel_run(struct notcurses *nc);
 /* Create/destroy functions*/
-struct ncpanel *ncpanel_create(struct ncplane *parent, const int y, const int x, const unsigned int rows, const int cols);             /* create ncpanel instance */
+struct ncpanel *ncpanel_create(struct ncpanel *parent, const int y, const int x, const unsigned int rows, const int cols);             /* create ncpanel instance */
 struct ncpanel *ncpanel_wrap_plane(struct ncplane *plane, const int y, const int x, const unsigned int rows, const unsigned int cols); /* wrap ncplane to ncpanel */
 void ncpanel_destroy(struct ncpanel *panel); /* destroy all childs of ncpanel and itself and free memory */
 
@@ -40,10 +44,6 @@ enum NCPANEL_OBSERVER_EVENT ncpanel_get_event(struct ncpanel *observer);        
 bool ncpanel_is_notifyed(const struct ncpanel *observer);                                                                              /* checks if ncpanel is notifyed by subject */
 unsigned int ncpanel_get_rows(const struct ncpanel *panel);                                                                            /* returns rows of ncpanel */
 unsigned int ncpanel_get_cols(const struct ncpanel *panel);                                                                            /* returns cols of ncpanel */
-
-
-/* Parent/child functions */
-bool ncpanel_add_child(struct ncpanel *parent, struct ncpanel *child);                                                                  /* Add child to ncpanel. Returns false on failure */
 
 /* Graphics */
 int ncpanel_create_box(struct ncpanel *panel, const int rows, const int cols, unsigned int mask);                                      /* draw box around ncpanel */

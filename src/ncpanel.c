@@ -50,6 +50,8 @@ struct ncpanel {
     void *clean_up_data; 
 };
 
+static bool create_main_window(struct notcurses *nc);
+static void update_main_window(struct ncpanel *main_screen, void *update_data);
 static struct ncpanel_observer *ncpanel_create_observer(void);
 static struct ncpanel_observer_list *ncpanel_create_observer_list();
 static struct ncpanel_subject *ncpanel_create_subject(void);
@@ -63,12 +65,44 @@ static struct ncpanel_list *ncpanel_create_list(void);
 static void ncpanel_destroy_list(struct ncpanel_list *list);
 static bool ncpanel_add_panel_to_list(struct ncpanel_list *list, struct ncpanel *panel);
 
+static bool ncpanel_add_child(struct ncpanel *parent, struct ncpanel *child);
 static struct ncpanel *ncpanel_get_panel(struct ncpanel_node *node);
 static struct ncpanel_node *ncpanel_list_begin(struct ncpanel_list *list);
 static struct ncpanel_node *ncpanel_list_end(struct ncpanel_list *list);
 static struct ncpanel_node *ncpanel_list_next(struct ncpanel_node *node);
 
-struct ncpanel *ncpanel_create(struct ncplane *parent, const int y, const int x, const unsigned int rows, const int cols)
+static struct ncpanel *main_window = NULL;
+static bool running = false;
+
+bool ncpanel_init(struct notcurses *nc)
+{
+    if (create_main_window(nc) == false)
+        return false;
+    else
+        return true;
+}
+
+void ncpanel_quit(void)
+{
+    ncpanel_destroy(main_window);
+}
+
+/* Main cycle */ 
+void ncpanel_run(struct notcurses *nc)
+{
+    struct ncinput input;
+    memset(&input, 0, sizeof(struct ncinput));
+     
+    while (running) {
+        notcurses_get_blocking(nc, &input);
+        if (input.id == 'q')
+            running = false;
+        ncpanel_proccess_input_and_update(main_window, &input);
+        notcurses_render(nc);
+    }
+}
+
+struct ncpanel *ncpanel_create(struct ncpanel *parent, const int y, const int x, const unsigned int rows, const int cols)
 {
     struct ncpanel *panel = malloc(sizeof(struct ncpanel));
     if (panel) {
@@ -79,10 +113,12 @@ struct ncpanel *ncpanel_create(struct ncplane *parent, const int y, const int x,
         opts.x = x;
         opts.rows = rows;
         opts.cols = cols;
-        
-        panel->plane = ncplane_create(parent, &opts);
-        if (panel->plane) {
+        if (parent)
+            panel->plane = ncplane_create(parent->plane, &opts);
+        else
+            panel->plane = ncplane_create(main_window->plane, &opts);
 
+        if (panel->plane) {
             panel->y = y;
             panel->x = x;
             panel->rows = rows;
@@ -103,6 +139,10 @@ struct ncpanel *ncpanel_create(struct ncplane *parent, const int y, const int x,
             panel->data = NULL;
             panel->update_data = NULL;
             panel->clean_up_data = NULL;
+            if (parent)
+                ncpanel_add_child(parent, panel);
+            else
+                ncpanel_add_child(main_window, panel);
         } else {
             free(panel);
             panel = NULL;
@@ -276,19 +316,6 @@ bool ncpanel_is_notifyed(const struct ncpanel *observer)
     return observer->observer->is_notifyed;
 }
 
-bool ncpanel_add_child(struct ncpanel *parent, struct ncpanel *child)
-{
-    if (parent->childs) {
-        return ncpanel_add_panel_to_list(parent->childs, child);
-    } else {
-        parent->childs = ncpanel_create_list();
-        if (!parent->childs) {
-            return false;
-        } else {
-            return ncpanel_add_panel_to_list(parent->childs, child);
-        }
-    }
-}
 
 int ncpanel_create_box(struct ncpanel *panel, const int rows, const int cols, unsigned int mask)
 {
@@ -473,5 +500,80 @@ static bool ncpanel_add_observer_to_list(struct ncpanel_observer_list *observer_
         return true;
     } else {
         return false;
+    }
+}
+
+static bool ncpanel_add_child(struct ncpanel *parent, struct ncpanel *child)
+{
+    if (parent->childs) {
+        return ncpanel_add_panel_to_list(parent->childs, child);
+    } else {
+        parent->childs = ncpanel_create_list();
+        if (!parent->childs) {
+            return false;
+        } else {
+            return ncpanel_add_panel_to_list(parent->childs, child);
+        }
+    }
+}
+
+static bool create_main_window(struct notcurses *nc)
+{
+    const int y = 1;
+    const int x = 1;
+
+    unsigned int terminal_rows, terminal_cols;
+    notcurses_term_dim_yx(nc, &terminal_rows, &terminal_cols);
+    struct ncplane_options opts;
+    memset(&opts, 0, sizeof(struct ncplane_options));
+    
+    opts.y = y;
+    opts.x = x;
+    opts.rows = terminal_rows;
+    opts.cols = terminal_cols;
+    
+    main_window = malloc(sizeof(struct ncpanel));
+    main_window->plane = ncplane_create(notcurses_stdplane(nc), &opts);
+    if (main_window->plane) {
+        main_window->y = y;
+        main_window->x = x;
+        main_window->rows = terminal_rows;
+        main_window->cols = terminal_cols;
+        
+        main_window->childs = NULL;
+        main_window->observer = ncpanel_create_observer();
+        if (!main_window->observer)
+            goto observer_err;
+        main_window->subject = ncpanel_create_subject();
+        if (!main_window->subject)
+            goto subject_err;
+
+        main_window->input_callback = NULL;
+        main_window->update_callback = NULL;
+        main_window->clean_up_callback = NULL;
+
+        main_window->data = NULL;
+        main_window->update_data = NULL;
+        main_window->clean_up_data = NULL;
+    }
+    running = true;
+    ncpanel_bind_update_callback(main_window, update_main_window, &running);
+    return true;    
+    subject_err:
+        ncpanel_destroy_observer(main_window->observer);
+    observer_err:
+        ncplane_destroy(main_window->plane);
+        free(main_window);
+        return false;
+}
+
+static void update_main_window(struct ncpanel *main_screen, void *update_data)
+{
+    if (ncpanel_is_notifyed(main_screen) == true) {
+        enum NCPANEL_OBSERVER_EVENT event = ncpanel_get_event(main_screen);
+        if (event == NCPANEL_EVENT_EXIT) {
+            bool *running = (bool*)update_data;
+            *running = false;
+        }
     }
 }

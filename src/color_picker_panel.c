@@ -8,7 +8,7 @@ static void proccess_input_on_color_picker(struct ncpanel *panel, const struct n
 
 struct ncpanel *create_color_picker_panel(struct ncpanel *parent, const int y, const int x, const int rows, const int cols)
 {
-    struct ncpanel *color_picker = ncpanel_create(ncpanel_get_plane(parent), y, x, rows, cols);
+    struct ncpanel *color_picker = ncpanel_create(parent, y, x, rows, cols);
     if (color_picker) {
         ncpanel_bind_input_callback(color_picker, proccess_input_on_color_picker, NULL);
         ncpanel_create_box(color_picker, rows - 4, cols - 1, 0x100);

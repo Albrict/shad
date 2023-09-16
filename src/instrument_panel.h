@@ -1,4 +1,4 @@
 #pragma once
 #include "ncpanel.h"
 
-struct ncpanel *create_instrument_panel(struct ncplane *parent, struct ncpanel *canvas);
+struct ncpanel *create_instrument_panel(struct ncpanel *canvas);
