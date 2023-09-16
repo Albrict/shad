@@ -1,6 +1,6 @@
 #include "selected_color_panel.h"
 #include "palette.h"
-#include "src/color.h"
+#include "color.h"
 
 static const wchar_t *selected_color_str = L"Current color:";
 
@@ -8,7 +8,7 @@ static void update(struct ncpanel *panel, void *update_data);
 
 struct ncpanel *create_selected_color_panel(struct ncpanel *parent, const int y, const int x, const int rows, const int cols, const uint32_t mask)
 {
-    struct ncpanel *selected_color_panel = ncpanel_create(ncpanel_get_plane(parent), y, x, rows, cols);
+    struct ncpanel *selected_color_panel = ncpanel_create(parent, y, x, rows, cols);
     if (selected_color_panel) {
         ncpanel_bind_update_callback(selected_color_panel, update, NULL);
         struct ncplane *selected_color_plane = ncpanel_get_plane(selected_color_panel);

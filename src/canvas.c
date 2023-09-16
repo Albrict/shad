@@ -2,7 +2,7 @@
 #include "palette.h"
 #include "color.h"
 
-#include "libs/libattopng.h"
+#include "../libs/libattopng.h"
 
 #define RGBA(r, g, b, a) ((r) | ((g) << 8) | ((b) << 16) | ((a) << 24))
 
@@ -10,13 +10,12 @@ static void save_plane(struct ncplane *canvas_panel_plane, const char *filename)
 static void proccess_input_on_canvas(struct ncpanel *canvas_panel, const struct ncinput *input, void *filename);
 static void update_canvas(struct ncpanel *panel, void *update_data);
 
-struct ncpanel *create_canvas_panel(struct ncplane *parent, const char *filename, 
-                                    const unsigned int rows, const unsigned int cols)
+struct ncpanel *create_canvas_panel(const char *filename, const unsigned int rows, const unsigned int cols)
 {
     struct ncpanel *canvas_panel = NULL; 
     const int y = 1;
     const int x = 0;
-    canvas_panel = ncpanel_create(parent, y, x, rows, cols);
+    canvas_panel = ncpanel_create(NULL, y, x, rows, cols);
     if (canvas_panel) {
         ncpanel_bind_input_callback(canvas_panel, proccess_input_on_canvas, NULL);
         ncpanel_bind_update_callback(canvas_panel, update_canvas, (void*)filename);

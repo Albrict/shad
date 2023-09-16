@@ -1,4 +1,4 @@
-#include "libs/cJSON.h"
+#include "../libs/cJSON.h"
 
 #include "palette.h"
 #include "shad_error.h"
